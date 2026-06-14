@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMPACT COTTAGES</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #3ddc84;
+    --green-dark: #28a85e;
+    --black: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #2a2a2a;
+    --text: #f0f0f0;
+    --muted: #777;
+    --error: #e05252;
+    --user-bubble: #1e3a2a;
+    --bot-bubble: #1a1a1a;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--black);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 680px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--black);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-mark span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--black);
+    letter-spacing: 1px;
+  }
+
+  .header-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 300;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-left: auto;
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+    50% { opacity: 0.5; box-shadow: 0 0 16px var(--green); }
+  }
+
+  /* ── GATE ── */
+  #gate {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    gap: 32px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .gate-copy { text-align: center; }
+
+  .gate-copy h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 3px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .gate-copy h2 span { color: var(--green); }
+
+  .gate-copy p {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 340px;
+    line-height: 1.6;
+  }
+
+  .gate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  /* field wrapper for error messages */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field-error {
+    font-size: 11px;
+    color: var(--error);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    min-height: 14px;
+  }
+
+  .gate-form input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 14px 18px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .gate-form input:focus { border-color: var(--green); }
+  .gate-form input::placeholder { color: var(--muted); }
+  .gate-form input.invalid { border-color: var(--error); }
+  .gate-form input.valid { border-color: var(--green); }
+
+  .btn-start {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .btn-start:hover { background: var(--green-dark); }
+  .btn-start:active { transform: scale(0.98); }
+
+  /* ── CHAT ── */
+  #chat-wrapper {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 24px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+  }
+
+  #messages::-webkit-scrollbar { width: 4px; }
+  #messages::-webkit-scrollbar-track { background: transparent; }
+  #messages::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user { align-self: flex-end; align-items: flex-end; }
+  .msg.bot  { align-self: flex-start; align-items: flex-start; }
+
+  .msg-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .msg.user .msg-label { color: var(--green); }
+
+  .bubble {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    border: 1px solid #2a4a35;
+    color: var(--text);
+  }
+
+  .msg.bot .bubble {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .typing-indicator span {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ── INPUT AREA ── */
+  #input-area {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--black);
+    flex-shrink: 0;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  #user-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 13px 16px;
+    outline: none;
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+  }
+
+  #user-input:focus { border-color: var(--green); }
+  #user-input::placeholder { color: var(--muted); }
+
+  #send-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--green);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  #send-btn:hover { background: var(--green-dark); }
+  #send-btn:active { transform: scale(0.95); }
+  #send-btn:disabled { background: var(--border); cursor: not-allowed; }
+  #send-btn svg { width: 18px; height: 18px; fill: var(--black); }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @media (max-width: 480px) {
+    header { padding: 16px 18px; }
+    #messages { padding: 18px 16px 8px; }
+    #input-area { padding: 12px 16px 20px; }
+    .gate-copy h2 { font-size: 32px; }
+    #app { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="logo-mark"><span>CC</span></div>
+    <div class="header-text">
+      <h1>COMPACT COTTAGES</h1>
+      <p>Your compact living specialists</p>
+    </div>
+    <div class="status-dot"></div>
+  </header>
+
+  <!-- Gate (homepage) -->
+  <div id="gate">
+    <div class="gate-copy">
+      <h2>Hey,<br>let's <span>talk.</span></h2>
+      <p>Tell us your name and we'll get straight to it — no fluff, no waiting.</p>
+    </div>
+    <div class="gate-form">
+      <div class="field">
+        <input type="text" id="gate-name" placeholder="Your first name" maxlength="60" autocomplete="given-name">
+        <span class="field-error" id="name-error"></span>
+      </div>
+      <div class="field">
+        <input type="email" id="gate-email" placeholder="Your email (optional)" maxlength="120" autocomplete="email">
+        <span class="field-error" id="email-error"></span>
+      </div>
+      <button class="btn-start" onclick="startChat()">START CHAT</button>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chat-wrapper">
+    <div id="messages"></div>
+    <div id="input-area">
+      <div class="input-row">
+        <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
+        <button id="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 21l21-9L2 3v7l15 2-15 2z"></path>
+          </svg>
+        </button>
+      </div>
+      <p class="input-hint">Press Enter to send &nbsp;·&nbsp; Shift+Enter for new line</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const WEBHOOK = 'https://compact-cottages.app.n8n.cloud/webhook/183c74fa-9e19-43fb-aa0d-90c54f6bee31/chat';
+  let userName = '';
+  let userEmail = '';
+  let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  let isWaiting = false;
+
+  // ── VALIDATION ──────────────────────────────────────────────
+  function isValidEmail(value) {
+    // Must have chars @ chars . chars — no spaces, basic structure check
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+  }
+
+  function setFieldState(inputEl, errorEl, message, state) {
+    // state: 'error' | 'valid' | 'idle'
+    inputEl.classList.remove('invalid', 'valid');
+    if (state === 'error') {
+      inputEl.classList.add('invalid');
+      errorEl.textContent = message;
+    } else if (state === 'valid') {
+      inputEl.classList.add('valid');
+      errorEl.textContent = '';
+    } else {
+      errorEl.textContent = '';
+    }
+  }
+
+  function validateGate() {
+    const nameInput  = document.getElementById('gate-name');
+    const emailInput = document.getElementById('gate-email');
+    const nameError  = document.getElementById('name-error');
+    const emailError = document.getElementById('email-error');
+
+    let valid = true;
+
+    // Name — required
+    if (!nameInput.value.trim()) {
+      setFieldState(nameInput, nameError, 'Please enter your first name.', 'error');
+      nameInput.focus();
+      valid = false;
+    } else {
+      setFieldState(nameInput, nameError, '', 'valid');
+    }
+
+    // Email — optional, but if filled must be valid format
+    const emailVal = emailInput.value.trim();
+    if (emailVal && !isValidEmail(emailVal)) {
+      setFieldState(emailInput, emailError, 'That doesn\'t look like a valid email.', 'error');
+      if (valid) emailInput.focus(); // only steal focus if name passed
+      valid = false;
+    } else if (emailVal) {
+      setFieldState(emailInput, emailError, '', 'valid');
+    } else {
+      setFieldState(emailInput, emailError, '', 'idle');
+    }
+
+    return valid;
+  }
+
+  // Live validation on blur
+  document.addEventListener('DOMContentLoaded', () => {
+    const nameInput  = document.getElementById('gate-name');
+    const emailInput = document.getElementById('gate-email');
+    const nameError  = document.getElementById('name-error');
+    const emailError = document.getElementById('email-error');
+
+    nameInput.addEventListener('blur', () => {
+      if (!nameInput.value.trim()) {
+        setFieldState(nameInput, nameError, 'Please enter your first name.', 'error');
+      } else {
+        setFieldState(nameInput, nameError, '', 'valid');
+      }
+    });
+
+    nameInput.addEventListener('input', () => {
+      if (nameInput.value.trim()) {
+        setFieldState(nameInput, nameError, '', 'valid');
+      }
+    });
+
+    emailInput.addEventListener('blur', () => {
+      const val = emailInput.value.trim();
+      if (val && !isValidEmail(val)) {
+        setFieldState(emailInput, emailError, 'That doesn\'t look like a valid email.', 'error');
+      } else if (val) {
+        setFieldState(emailInput, emailError, '', 'valid');
+      } else {
+        setFieldState(emailInput, emailError, '', 'idle');
+      }
+    });
+
+    emailInput.addEventListener('input', () => {
+      const val = emailInput.value.trim();
+      if (val && isValidEmail(val)) {
+        setFieldState(emailInput, emailError, '', 'valid');
+      } else if (emailInput.classList.contains('invalid') && !val) {
+        setFieldState(emailInput, emailError, '', 'idle');
+      }
+    });
+
+    // Enter key on gate inputs
+    nameInput.addEventListener('keydown',  e => { if (e.key === 'Enter') startChat(); });
+    emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') startChat(); });
+
+    // Chat textarea
+    const chatInput = document.getElementById('user-input');
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    chatInput.addEventListener('input', () => {
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+    });
+  });
+
+  // ── CHAT INIT ───────────────────────────────────────────────
+  function startChat() {
+    if (!validateGate()) return;
+
+    userName  = document.getElementById('gate-name').value.trim();
+    userEmail = document.getElementById('gate-email').value.trim();
+
+    document.getElementById('gate').style.display = 'none';
+
+    const chatWrapper = document.getElementById('chat-wrapper');
+    chatWrapper.style.display = 'flex';
+    chatWrapper.style.animation = 'fadeIn 0.4s ease';
+
+    appendMessage('bot', `Hey ${userName} — how can I help you today?`);
+    document.getElementById('user-input').focus();
+  }
+
+  // ── MESSAGE HELPERS ──────────────────────────────────────────
+  function appendMessage(role, text) {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = role === 'user' ? userName : 'Compact Cottages';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = text;
+
+    div.appendChild(label);
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  function showTyping() {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.id = 'typing-msg';
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = 'Compact Cottages';
+
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-indicator';
+    indicator.innerHTML = '<span></span><span></span><span></span>';
+
+    div.appendChild(label);
+    div.appendChild(indicator);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-msg');
+    if (t) t.remove();
+  }
+
+  // ── SEND ─────────────────────────────────────────────────────
+  async function sendMessage() {
+    if (isWaiting) return;
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    appendMessage('user', text);
+
+    isWaiting = true;
+    document.getElementById('send-btn').disabled = true;
+    showTyping();
+
+    try {
+      const res = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatInput: text,
+          sessionId: sessionId,
+          metadata: { name: userName, email: userEmail }
+        })
+      });
+
+      removeTyping();
+      if (!res.ok) throw new Error('Network error');
+
+      const data = await res.json();
+      const reply = data.output || data.text || data.message || data.response ||
+        (Array.isArray(data) && (data[0]?.output || data[0]?.text)) ||
+        'Got your message — give me a moment.';
+
+      appendMessage('bot', reply);
+    } catch (err) {
+      removeTyping();
+      appendMessage('bot', 'Something went wrong on my end — try again in a moment.');
+      console.error(err);
+    }
+
+    isWaiting = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('user-input').focus();
+  }
+</script>
+
+</body>
+</html>
