@@ -727,6 +727,8 @@
 
             isWaiting = true;
             document.getElementById('send-btn').disabled = true;
+            input.disabled = true;
+            input.placeholder = 'Waiting for response...';
             showTyping();
 
             try {
@@ -757,7 +759,9 @@
 
             isWaiting = false;
             document.getElementById('send-btn').disabled = false;
-            document.getElementById('user-input').focus();
+            input.disabled = false;
+            input.placeholder = 'Type your message...';
+            input.focus();
         }
     </script>
 
