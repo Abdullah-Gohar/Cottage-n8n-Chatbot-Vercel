@@ -172,7 +172,6 @@
             max-width: 360px;
         }
 
-        /* field wrapper for error messages */
         .field {
             display: flex;
             flex-direction: column;
@@ -505,10 +504,6 @@
                         autocomplete="given-name">
                     <span class="field-error" id="name-error"></span>
                 </div>
-                <div class="field">
-                    <input type="email" id="gate-email" placeholder="Your email" maxlength="120" autocomplete="email">
-                    <span class="field-error" id="email-error"></span>
-                </div>
                 <button class="btn-start" onclick="startChat()">START CHAT</button>
             </div>
         </div>
@@ -534,18 +529,10 @@
     <script>
         const WEBHOOK = 'https://compact-cottages.app.n8n.cloud/webhook/183c74fa-9e19-43fb-aa0d-90c54f6bee31/chat';
         let userName = '';
-        let userEmail = '';
         let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
         let isWaiting = false;
 
-        // ── VALIDATION ──────────────────────────────────────────────
-        function isValidEmail(value) {
-            // Must have chars @ chars . chars — no spaces, basic structure check
-            return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
-        }
-
         function setFieldState(inputEl, errorEl, message, state) {
-            // state: 'error' | 'valid' | 'idle'
             inputEl.classList.remove('invalid', 'valid');
             if (state === 'error') {
                 inputEl.classList.add('invalid');
@@ -560,44 +547,21 @@
 
         function validateGate() {
             const nameInput = document.getElementById('gate-name');
-            const emailInput = document.getElementById('gate-email');
             const nameError = document.getElementById('name-error');
-            const emailError = document.getElementById('email-error');
 
-            let valid = true;
-
-            // Name — required
             if (!nameInput.value.trim()) {
                 setFieldState(nameInput, nameError, 'Please enter your first name.', 'error');
                 nameInput.focus();
-                valid = false;
-            } else {
-                setFieldState(nameInput, nameError, '', 'valid');
+                return false;
             }
 
-            // Email — required and must be valid format
-            const emailVal = emailInput.value.trim();
-            if (!emailVal) {
-                setFieldState(emailInput, emailError, 'Please enter your email address.', 'error');
-                if (valid) emailInput.focus();
-                valid = false;
-            } else if (!isValidEmail(emailVal)) {
-                setFieldState(emailInput, emailError, 'That doesn\'t look like a valid email.', 'error');
-                if (valid) emailInput.focus();
-                valid = false;
-            } else {
-                setFieldState(emailInput, emailError, '', 'valid');
-            }
-
-            return valid;
+            setFieldState(nameInput, nameError, '', 'valid');
+            return true;
         }
 
-        // Live validation on blur
         document.addEventListener('DOMContentLoaded', () => {
             const nameInput = document.getElementById('gate-name');
-            const emailInput = document.getElementById('gate-email');
             const nameError = document.getElementById('name-error');
-            const emailError = document.getElementById('email-error');
 
             nameInput.addEventListener('blur', () => {
                 if (!nameInput.value.trim()) {
@@ -613,31 +577,8 @@
                 }
             });
 
-            emailInput.addEventListener('blur', () => {
-                const val = emailInput.value.trim();
-                if (val && !isValidEmail(val)) {
-                    setFieldState(emailInput, emailError, 'That doesn\'t look like a valid email.', 'error');
-                } else if (val) {
-                    setFieldState(emailInput, emailError, '', 'valid');
-                } else {
-                    setFieldState(emailInput, emailError, '', 'idle');
-                }
-            });
-
-            emailInput.addEventListener('input', () => {
-                const val = emailInput.value.trim();
-                if (val && isValidEmail(val)) {
-                    setFieldState(emailInput, emailError, '', 'valid');
-                } else if (emailInput.classList.contains('invalid') && !val) {
-                    setFieldState(emailInput, emailError, '', 'idle');
-                }
-            });
-
-            // Enter key on gate inputs
             nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') startChat(); });
-            emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') startChat(); });
 
-            // Chat textarea
             const chatInput = document.getElementById('user-input');
             chatInput.addEventListener('keydown', e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -656,7 +597,6 @@
             if (!validateGate()) return;
 
             userName = document.getElementById('gate-name').value.trim();
-            userEmail = document.getElementById('gate-email').value.trim();
 
             document.getElementById('gate').style.display = 'none';
 
@@ -738,7 +678,7 @@
                     body: JSON.stringify({
                         chatInput: text,
                         sessionId: sessionId,
-                        metadata: { name: userName, email: userEmail }
+                        metadata: { name: userName }
                     })
                 });
 
