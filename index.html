@@ -671,11 +671,26 @@
         const CONFIG = {
             webhook: 'https://compact-cottages.app.n8n.cloud/webhook/183c74fa-9e19-43fb-aa0d-90c54f6bee31/chat',
             botLabel: 'Compact Cottages',
-            greeting: name => `Hey ${name}! I help folks figure out the right cottage for their land and budget. What brings you in today?`,
+            // Page-aware openers: meet the visitor at the pain point of the page
+            // they came from (draft copy — pending brand-voice review).
+            greetings: {
+                default: name => `Hey ${name}! I help folks figure out the right cottage for their land and budget. What brings you in today?`,
+                home: name => `Hey ${name}! Most folks land here wondering what a cottage would actually cost on their land. Want help figuring that out?`,
+                homes: name => `Hey ${name}! Looking through the models? Tell me what you need (bedrooms, budget, ADU or full home) and I'll point you to the right fit.`,
+                'origami-home': name => `Hey ${name}! Got questions about the Origami? I can cover price, specs, timeline, and whether it fits your lot.`,
+                'standard-cottage-2bed': name => `Hey ${name}! Got questions about the Standard Cottage? I can cover price, specs, timeline, and whether it fits your lot.`,
+                inventory: name => `Hey ${name}! These are the homes we can deliver fastest. Want to see what's available and how quickly you could move in?`,
+                start: name => `Hey ${name}! Budget is the number one question we get. Give me a rough idea of your situation and I'll get you a ballpark.`,
+                configure: name => `Hey ${name}! Budget is the number one question we get. Give me a rough idea of your situation and I'll get you a ballpark.`,
+                land: name => `Hey ${name}! Wondering what your land allows, or still looking for land? Tell me where you're at and I'll help.`,
+                study: name => `Hey ${name}! Thinking about a feasibility study? I can explain what it covers and whether your property is a good fit.`
+            },
             // Page-aware quick-reply chips (draft copy — pending brand-voice review)
             quickReplies: {
                 default: ['Browse models', 'What will it cost?', 'Can I build on my land?'],
                 homes: ['What sizes are available?', 'How much do they cost?', 'What’s included?'],
+                'origami-home': ['What does the Origami cost?', 'What’s the timeline?', 'Will it fit my lot?'],
+                'standard-cottage-2bed': ['What does it cost?', 'What’s the timeline?', 'Will it fit my lot?'],
                 inventory: ['What’s available right now?', 'How much do they cost?', 'How fast could I move in?'],
                 start: ['Get a ballpark estimate', 'How does financing work?', 'What’s the timeline?'],
                 configure: ['Get a ballpark estimate', 'How does financing work?', 'What’s the timeline?'],
@@ -844,7 +859,7 @@
                 const history = loadHistory();
                 history.forEach(m => appendMessage(m.role, m.text, { skipPersist: true }));
                 if (history.length === 0) {
-                    appendMessage('bot', CONFIG.greeting(userName));
+                    appendMessage('bot', greetingForPage(userName));
                 }
                 // Re-offer the starter chips until the visitor has sent something.
                 if (!history.some(m => m.role === 'user')) {
@@ -884,16 +899,24 @@
             saveSession();
             openChatView();
 
-            appendMessage('bot', CONFIG.greeting(userName));
+            appendMessage('bot', greetingForPage(userName));
             showQuickReplies();
             document.getElementById('user-input').focus();
         }
 
-        // ── QUICK REPLIES ────────────────────────────────────────────
+        // ── PAGE-AWARE CONTENT ───────────────────────────────────────
+        function pickForPage(map) {
+            if (map[PAGE]) return map[PAGE];
+            const prefix = Object.keys(map).find(k => k !== 'default' && PAGE.indexOf(k) === 0);
+            return prefix ? map[prefix] : map.default;
+        }
+
+        function greetingForPage(name) {
+            return pickForPage(CONFIG.greetings)(name);
+        }
+
         function quickRepliesForPage() {
-            if (CONFIG.quickReplies[PAGE]) return CONFIG.quickReplies[PAGE];
-            const prefix = Object.keys(CONFIG.quickReplies).find(k => k !== 'default' && PAGE.indexOf(k) === 0);
-            return prefix ? CONFIG.quickReplies[prefix] : CONFIG.quickReplies.default;
+            return pickForPage(CONFIG.quickReplies);
         }
 
         function showQuickReplies() {

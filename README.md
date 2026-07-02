@@ -20,7 +20,7 @@ Attributes (all optional):
 
 | Attribute | Purpose | Default |
 |---|---|---|
-| `data-page` | Page slug: sent to n8n as `metadata.page`, and picks page-aware quick replies (`homes`, `inventory`, `start`, `configure`, `land`, `study`) | none |
+| `data-page` | Page slug: sent to n8n as `metadata.page`, and picks the page-aware opener + quick replies (`home`, `homes`, `origami-home`, `standard-cottage-2bed`, `inventory`, `start`, `configure`, `land`, `study`; anything else falls back to the default opener) | none |
 | `data-teaser` | Proactive teaser text next to the launcher | none (no teaser) |
 | `data-teaser-delay` | Seconds before the teaser appears | `15` |
 | `data-exit-teaser` | Exit-intent teaser text; `off` disables exit intent | built-in default |
@@ -31,7 +31,7 @@ Frequency caps: timed teaser and exit teaser each show at most once per browser 
 ## Chat app behavior
 
 - Name gate first (first name only), then chat. The gate is skipped if a session from the last 24h exists.
-- Greeting plus 2 or 3 quick-reply chips (page-aware); chips disappear after the first message.
+- Page-aware opener: the first bot message speaks to the pain point of the page the visitor came from (model pages name the model, start/configure lead with budget, land leads with lot fit), plus 2 or 3 page-aware quick-reply chips. Chips disappear after the first message.
 - Session: `sessionId` and transcript persist in `localStorage` for 24h (`cc_chat_session`, `cc_chat_history`), so n8n memory threads continue across reloads.
 - Bot replies are HTML-escaped, then a minimal markdown subset is rendered (bold, italic, links, bullet lists). No raw HTML from the webhook is ever injected.
 - Widget/iframe protocol: parent sends `{type:'cc-chat-opened'}` to focus the input; the app sends `{type:'cc-chat-close'}` when the in-chat X is clicked.
