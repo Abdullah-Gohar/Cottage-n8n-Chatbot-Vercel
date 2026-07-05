@@ -568,6 +568,20 @@
             fill: #fff;
         }
 
+        .text-us-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-soft);
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: color 0.2s;
+        }
+        .text-us-line:hover { color: var(--clay-deep); }
+        .text-us-line svg { width: 13px; height: 13px; flex-shrink: 0; }
+
         .input-hint {
             font-size: 11px;
             color: var(--text-soft);
@@ -652,6 +666,10 @@
         <div id="chat-wrapper">
             <div id="messages"></div>
             <div id="input-area">
+                <a class="text-us-line" href="sms:+16513840892">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    Text us instead
+                </a>
                 <div class="input-row">
                     <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
                     <button id="send-btn" onclick="sendMessage()" aria-label="Send message">
@@ -683,7 +701,11 @@
                 start: name => `Hey ${name}! Budget is the number one question we get. Give me a rough idea of your situation and I'll get you a ballpark.`,
                 configure: name => `Hey ${name}! Budget is the number one question we get. Give me a rough idea of your situation and I'll get you a ballpark.`,
                 land: name => `Hey ${name}! Wondering what your land allows, or still looking for land? Tell me where you're at and I'll help.`,
-                study: name => `Hey ${name}! Thinking about a feasibility study? I can explain what it covers and whether your property is a good fit.`
+                study: name => `Hey ${name}! Thinking about a feasibility study? I can explain what it covers and whether your property is a good fit.`,
+                'how-we-build': name => `Hey ${name}! Curious how we actually build these? I can walk you through the offsite process, the timeline, and what's included.`,
+                about: name => `Hey ${name}! Happy to tell you more about Compact Cottages. What would you like to know?`,
+                faq: name => `Hey ${name}! Have a quick question? Ask away and I'll get you a straight answer.`,
+                contact: name => `Hey ${name}! Rather not fill out the form? Ask me anything right here and I'll help.`
             },
             // Page-aware quick-reply chips (draft copy — pending brand-voice review)
             quickReplies: {
@@ -695,7 +717,11 @@
                 start: ['Get a ballpark estimate', 'How does financing work?', 'What’s the timeline?'],
                 configure: ['Get a ballpark estimate', 'How does financing work?', 'What’s the timeline?'],
                 land: ['Can I build on my land?', 'Do you have land available?', 'What about permits?'],
-                study: ['Can I build on my land?', 'What does a feasibility study cover?', 'What will it cost?']
+                study: ['Can I build on my land?', 'What does a feasibility study cover?', 'What will it cost?'],
+                'how-we-build': ['How long does it take?', 'What’s included?', 'Is it modular?'],
+                about: ['Browse models', 'What will it cost?', 'Where do you build?'],
+                faq: ['What will it cost?', 'Can I build on my land?', 'How does financing work?'],
+                contact: ['What will it cost?', 'Can I build on my land?', 'How does financing work?']
             },
             storage: {
                 sessionKey: 'cc_chat_session',

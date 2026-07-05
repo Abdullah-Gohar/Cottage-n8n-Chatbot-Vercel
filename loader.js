@@ -38,8 +38,13 @@
     })();
 
     var PAGE = (script && script.getAttribute('data-page')) || '';
-    var TEASER = (script && script.getAttribute('data-teaser')) || '';
+    var TEASER_ATTR = (script && script.getAttribute('data-teaser'));
+    // Fall back to a generic teaser so every page shows a nudge; set data-teaser="off" to disable.
+    var TEASER = TEASER_ATTR === 'off' ? '' :
+        (TEASER_ATTR || 'Have a question about cottages or ADUs? I can help.');
     var TEASER_DELAY = parseInt((script && script.getAttribute('data-teaser-delay')) || '15', 10) * 1000;
+    // Per-page cap: the timed teaser can appear once on each page, rather than once for the whole session.
+    var TEASER_CAP = 'cc_chat_teaser_shown_' + (PAGE || (location.pathname || '/'));
     var EXIT_TEASER_ATTR = (script && script.getAttribute('data-exit-teaser')) || '';
     var EXIT_TEASER = EXIT_TEASER_ATTR === 'off' ? '' :
         (EXIT_TEASER_ATTR || 'Before you go: want a quick answer on cost or fit? It takes two minutes.');
@@ -207,9 +212,9 @@
     }
 
     function armTeaser() {
-        if (!TEASER || SS.get('cc_chat_teaser_shown') || SS.get('cc_chat_engaged')) return;
+        if (!TEASER || SS.get(TEASER_CAP) || SS.get('cc_chat_engaged')) return;
         teaserTimer = setTimeout(function () {
-            showTeaser(TEASER, 'cc_chat_teaser_shown');
+            showTeaser(TEASER, TEASER_CAP);
         }, TEASER_DELAY);
     }
 
