@@ -761,7 +761,10 @@
                 const raw = localStorage.getItem(CONFIG.storage.sessionKey);
                 if (!raw) return null;
                 const s = JSON.parse(raw);
-                if (!s.sessionId || !s.name) return null;
+                // Restore by session id alone. A tool-started chat (Budget Builder
+                // / Lot Finder) has no name yet, but its session must survive page
+                // navigation so the conversation stays continuous.
+                if (!s.sessionId) return null;
                 if (Date.now() - (s.lastActive || 0) > CONFIG.storage.expiryMs) {
                     localStorage.removeItem(CONFIG.storage.sessionKey);
                     localStorage.removeItem(CONFIG.storage.historyKey);
