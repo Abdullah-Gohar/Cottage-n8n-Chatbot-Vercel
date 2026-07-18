@@ -740,6 +740,21 @@
         let isWaiting = false;
         let chatStarted = false;
 
+        // ── SESSION BRIDGE ───────────────────────────────────────────
+        // The website tools (Budget Builder / Lot Finder) need to share this
+        // chat's session id so a completed tool feeds back into the conversation.
+        // A cid may arrive on our URL (passed by the embed loader); adopt it when
+        // we have no active session of our own. We also broadcast our session id
+        // to the parent so a tool page can post its results against it.
+        const SESSION_RE = /^[A-Za-z0-9_\-]{6,80}$/;
+        const INJECTED_CID = params.get('cid');
+        if (INJECTED_CID && SESSION_RE.test(INJECTED_CID)) sessionId = INJECTED_CID;
+        function broadcastSession() {
+            if (window.parent !== window) {
+                try { window.parent.postMessage({ type: 'cc-chat-session', sessionId: sessionId }, '*'); } catch (e) { /* ignore */ }
+            }
+        }
+
         // ── STORAGE ──────────────────────────────────────────────────
         function loadSession() {
             try {
@@ -764,6 +779,7 @@
                     lastActive: Date.now()
                 }));
             } catch (e) { /* storage unavailable — degrade gracefully */ }
+            broadcastSession();
         }
 
         function loadHistory() {
@@ -892,14 +908,26 @@
                     showQuickReplies();
                 }
             }
+            // Tell the parent (and any tool page) which session we settled on.
+            broadcastSession();
         });
 
         // Widget protocol: parent tells us we were opened; we tell parent to close.
+        // Session bridge: parent can ask for our session id, or set one before a
+        // chat has started (used when a tool wants results tied to this session).
         window.addEventListener('message', e => {
-            if (e.data && e.data.type === 'cc-chat-opened') {
+            if (!e.data) return;
+            if (e.data.type === 'cc-chat-opened') {
                 const target = chatStarted ? 'user-input' : 'gate-name';
                 const el = document.getElementById(target);
                 if (el) el.focus();
+            }
+            if (e.data.type === 'cc-chat-get-session') {
+                broadcastSession();
+            }
+            if (e.data.type === 'cc-chat-set-session' && e.data.sessionId && !chatStarted && !loadSession()) {
+                const s = String(e.data.sessionId);
+                if (SESSION_RE.test(s)) { sessionId = s; broadcastSession(); }
             }
         });
 

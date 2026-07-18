@@ -139,8 +139,14 @@
     /* ── panel open/close ───────────────────────────────────── */
     function ensureIframe() {
         if (iframe) return;
+        // Share the tool session id (set by the website's tool-bridge) so a
+        // completed Budget Builder / Lot Finder feeds back into this chat.
+        var cid = null;
+        try { cid = sessionStorage.getItem('cc_cid'); } catch (e) { }
         iframe = document.createElement('iframe');
-        iframe.src = BASE + '/?embed=1' + (PAGE ? '&page=' + encodeURIComponent(PAGE) : '');
+        iframe.src = BASE + '/?embed=1' +
+            (PAGE ? '&page=' + encodeURIComponent(PAGE) : '') +
+            (cid ? '&cid=' + encodeURIComponent(cid) : '');
         iframe.title = 'Compact Cottages chat';
         iframe.setAttribute('allow', 'clipboard-write');
         panel.appendChild(iframe);
