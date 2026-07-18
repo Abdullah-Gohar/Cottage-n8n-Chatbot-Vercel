@@ -929,7 +929,33 @@
                 const s = String(e.data.sessionId);
                 if (SESSION_RE.test(s)) { sessionId = s; broadcastSession(); }
             }
+            // A tool page can hand us a message to send on the visitor's behalf
+            // (e.g. their Budget Builder summary) so the conversation continues
+            // visibly. We open the chat, adopt the shared session, and send it.
+            if (e.data.type === 'cc-chat-inject' && e.data.text) {
+                const msg = String(e.data.text).slice(0, 1000);
+                const now = Date.now();
+                if (msg === lastInjectText && (now - lastInjectAt) < 15000) { ackInject(); return; }
+                lastInjectText = msg; lastInjectAt = now;
+                if (e.data.name && !userName) userName = String(e.data.name).slice(0, 60);
+                if (!chatStarted) {
+                    const stored = loadSession();
+                    if (stored) { userName = userName || stored.name; sessionId = stored.sessionId; }
+                    else if (e.data.sessionId && SESSION_RE.test(String(e.data.sessionId))) { sessionId = String(e.data.sessionId); }
+                    openChatView();
+                    saveSession();
+                }
+                ackInject();
+                sendMessage(msg);
+            }
         });
+
+        let lastInjectText = '', lastInjectAt = 0;
+        function ackInject() {
+            if (window.parent !== window) {
+                try { window.parent.postMessage({ type: 'cc-chat-inject-ack' }, '*'); } catch (e) { /* ignore */ }
+            }
+        }
 
         function closeWidget() {
             if (window.parent !== window) {
@@ -1005,7 +1031,7 @@
 
             const label = document.createElement('div');
             label.className = 'msg-label';
-            label.textContent = role === 'user' ? userName : CONFIG.botLabel;
+            label.textContent = role === 'user' ? (userName || 'You') : CONFIG.botLabel;
 
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
