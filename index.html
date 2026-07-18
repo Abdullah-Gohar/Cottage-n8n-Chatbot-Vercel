@@ -1093,6 +1093,14 @@
             input.placeholder = 'Waiting for response...';
             showTyping();
 
+            // The backend can take 20-40s (multi-step agent). Reassure the visitor
+            // partway through, and never spin forever: abort after 90s.
+            const reassure = setTimeout(function () {
+                input.placeholder = 'Still working on it, one moment...';
+            }, 16000);
+            const controller = new AbortController();
+            const hardTimeout = setTimeout(function () { controller.abort(); }, 90000);
+
             try {
                 const res = await fetch(CONFIG.webhook, {
                     method: 'POST',
@@ -1101,11 +1109,13 @@
                         chatInput: text,
                         sessionId: sessionId,
                         metadata: { name: userName, page: PAGE || undefined }
-                    })
+                    }),
+                    signal: controller.signal
                 });
 
+                clearTimeout(reassure); clearTimeout(hardTimeout);
                 removeTyping();
-                if (!res.ok) throw new Error('Network error');
+                if (!res.ok) throw new Error('Network error ' + res.status);
 
                 const data = await res.json();
                 const reply = data.output || data.text || data.message || data.response ||
@@ -1114,8 +1124,12 @@
 
                 appendMessage('bot', reply);
             } catch (err) {
+                clearTimeout(reassure); clearTimeout(hardTimeout);
                 removeTyping();
-                appendMessage('bot', 'Something went wrong on my end. Try again in a moment.', { ephemeral: true });
+                var msg = (err && err.name === 'AbortError')
+                    ? "Sorry, that took longer than expected. Could you send that again, or tap 'Talk to an expert' and we'll follow up directly?"
+                    : 'Something went wrong on my end. Try again in a moment.';
+                appendMessage('bot', msg, { ephemeral: true });
                 console.error(err);
             }
 
