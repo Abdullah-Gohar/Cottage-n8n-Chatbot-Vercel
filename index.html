@@ -315,6 +315,7 @@
         #messages {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 24px 24px 8px;
             display: flex;
             flex-direction: column;
@@ -381,6 +382,13 @@
             padding: 12px 16px;
             font-size: 14px;
             line-height: 1.65;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .bubble a {
+            word-break: break-all;
         }
 
         .msg.user .bubble {
