@@ -825,8 +825,16 @@
             // (whitelist conversion done before escaping — no raw HTML passes through).
             let s = escapeHTML(String(raw).replace(/<br\s*\/?>/gi, '\n'));
             // links: [label](https://url)
-            s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-                '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            // Tool pages (Budget Builder / Lot Finder) navigate THIS tab (the
+            // chat runs in an iframe, so target=_top) — the shared cid session
+            // follows the visitor there and back. Everything else (listings,
+            // external sites) opens a new tab as before.
+            s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function (m, label, url) {
+                var isTool = /\/(budget|lots)(\.html)?([?#]|$)/i.test(url);
+                return isTool
+                    ? '<a href="' + url + '" target="_top">' + label + '</a>'
+                    : '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+            });
             // bold / italic
             s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             s = s.replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>');
